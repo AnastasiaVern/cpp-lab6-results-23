@@ -1,0 +1,133 @@
+// LB6.cpp: определяет точку входа для консольного приложения.
+//
+#include "stdafx.h"
+#include <iostream>
+using namespace std;
+template <class T>
+class Matrix
+{
+	T **matrix;
+	int n, m;
+public:
+	Matrix() {};
+    
+	Matrix(T size_n, T size_m )
+	{
+		n = size_n;
+		m = size_m;
+		matrix = new T*[n];
+		for (int i = 0; i < n; i++) 
+		{
+			matrix[i] = new T[m];
+		}
+		
+	};
+	void enter()
+	{
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < m; j++)
+			{
+				matrix[i][j] = rand() % 10;
+				cout << matrix[i][j] << " ";
+			}
+			cout << endl;
+		}
+	}
+	void printMatrix()
+	{
+		for (int i = 0; i < n; i++) 
+		{
+			for (int j = 0; j < m; j++)
+			{
+				cout << matrix[i][j]<<" ";
+			}
+			cout << endl;
+		} 
+	} 
+
+	Matrix<T> operator^(Matrix<T>& mat) 
+	{
+		Matrix<T> rezult(n, mat.m + m);
+		for (int i = 0; i < n; i++) 
+		{
+			for (int j = 0; j < mat.m; j++) 
+			{
+				rezult.matrix[i][j] = mat.matrix[i][j];
+
+			}
+		} 
+		for (int i =0; i < n; i++) 
+		{
+			for (int j = mat.m; j < mat.m + m; j++)
+			{
+				rezult.matrix[i][j] = mat.matrix[i][j];
+			}
+		}
+		return rezult;
+	}; 
+	Matrix<T> operator*(Matrix<T>& mat)
+	{
+		Matrix<T> result(n, mat.m);
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < mat.m; j++)
+			{
+				result.matrix[i][j] = 0;
+				for (int k = 0; k < n; k++)
+				{
+					result.matrix[i][j] = result.matrix[i][j] + (mat.matrix[i][k] * mat.matrix[k][j]);
+				}
+			}
+		}
+		return result;
+	};
+	~Matrix() {};
+	template<class T>
+	class Iterator: public std::iterator<std::input_iterator_tag, T>
+	{   
+		T *m;
+		T index;
+	public: 
+		Iterator(T* t , T iterator) 
+		{
+			m = t;
+			index = iterator;
+		};
+		Iterator& operator++() 
+		{ 
+			index++;
+			return *this;
+		}
+		Iterator& operator->()
+		{
+			return *m[index];
+		}
+		Iterator& operator*()
+		{
+			return m[index];
+		}
+		~Iterator() {};
+	}
+};
+
+int main()
+{
+   Matrix <int> matr1(5,5);
+   Matrix <int> matr2(5, 5);
+   cout << "matr1" << endl;
+   matr1.enter();
+   cout << endl;
+   cout << "matr2" << endl;
+   matr2.enter();
+   Matrix <int> rezult = matr1*matr2;
+   cout << "matr rez umn"<<endl;
+   rezult.printMatrix();
+   cout << "matr rez kon" << endl;
+   Matrix <int> rez = matr1^matr2;
+   rez.printMatrix();
+
+
+	return 0;
+}
+//Не уверена во всем, что в классе Итератор написано + не работает слияние матриц
