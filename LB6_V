@@ -99,11 +99,11 @@ public:
 			index++;
 			return *this;
 		}
-		Iterator& operator->()
+		T* operator->()
 		{
-			return *m[index];
+			return &(m[index]);
 		}
-		Iterator& operator*()
+		T*& operator*()
 		{
 			return m[index];
 		}
