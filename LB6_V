@@ -2,26 +2,80 @@
 //
 #include "stdafx.h"
 #include <iostream>
+#include <algorithm>
+#include <functional>
 using namespace std;
+
+void s(int& );
+
 template <class T>
 class Matrix
 {
 	T **matrix;
 	int n, m;
 public:
+	class Iterator : public std::iterator<std::input_iterator_tag, T>
+	{
+		Matrix<T> *m;
+		int str;
+		int column;
+		int index, _bl;
+
+	public:
+		//typedef std::forward_iterator_tag iterator_category;
+		Iterator(Matrix<T>* t, int _str, int _col, int iterator, int bl)
+		{
+			m = t;
+			str = _str;
+			column = _col;
+			index = iterator;
+			_bl = bl;
+		};
+		Iterator& operator++()
+		{
+			if (++column == m->m) {
+				column = 0;
+				++str;
+			}
+			return *this;
+		}
+		/*T* operator->()
+		{
+			return &(m[index]);
+		}*/
+		T& operator*()
+		{
+			return (*m)(str, column);
+		}
+		bool operator==(const Iterator& it) {
+			return str == it.str && column == it.column;
+		}
+
+		bool operator!=(const Iterator& it) {
+			return str != it.str || column != it.column;
+		}
+
+		~Iterator() {};
+	};
+	//***********************MATRIX***************************
 	Matrix() {};
-    
-	Matrix(T size_n, T size_m )
+
+	Matrix(T size_n, T size_m)
 	{
 		n = size_n;
 		m = size_m;
 		matrix = new T*[n];
-		for (int i = 0; i < n; i++) 
+		for (int i = 0; i < n; i++)
 		{
 			matrix[i] = new T[m];
 		}
-		
+
 	};
+	T& operator() (int row, int col ) 
+	{
+		return matrix[row][col];
+	};
+	
 	void enter()
 	{
 		for (int i = 0; i < n; i++)
@@ -34,6 +88,7 @@ public:
 			cout << endl;
 		}
 	}
+	
 	void printMatrix()
 	{
 		for (int i = 0; i < n; i++) 
@@ -45,7 +100,14 @@ public:
 			cout << endl;
 		} 
 	} 
-
+	Iterator begin()
+	{
+		return Iterator(this, n, m, 0, 0);
+	};
+	Iterator end()
+	{
+		return Iterator(this, n, m, n, 0);
+	}
 	Matrix<T> operator^(Matrix<T>& mat) 
 	{
 		Matrix<T> rezult(n, mat.m + m);
@@ -66,6 +128,7 @@ public:
 		}
 		return rezult;
 	}; 
+
 	Matrix<T> operator*(Matrix<T>& mat)
 	{
 		Matrix<T> result(n, mat.m);
@@ -83,40 +146,47 @@ public:
 		return result;
 	};
 	~Matrix() {};
-	template<class T>
-	class Iterator: public std::iterator<std::input_iterator_tag, T>
-	{   
-		T *m;
-		T index;
-	public: 
-		Iterator(T* t , T iterator) 
-		{
-			m = t;
-			index = iterator;
-		};
-		Iterator& operator++() 
-		{ 
-			index++;
-			return *this;
-		}
-		T* operator->()
-		{
-			return &(m[index]);
-		}
-		T*& operator*()
-		{
-			return m[index];
-		}
-		~Iterator() {};
-	}
 };
 
+void s(int& i)
+{
+	i += 2;
+}
+bool pred(int &i)
+{
+	const int k = 5;
+	const int b = 4;
+	if (k*i + b == 0)
+		return true;
+	else return false;
+}
+bool pr(int &i)
+{
+	const int a = 4;
+	const int b = 3;
+	const int c = -3;
+	if ((i*i*a + b*i + c) == 0) 
+	{
+		return true;
+	}
+	else return false;
+}
+bool predpr(const int& i, const int& j)
+{
+	if (i < j)
+		return true;
+	if (i > j)
+		return false;
+}
 int main()
 {
    Matrix <int> matr1(5,5);
    Matrix <int> matr2(5, 5);
    cout << "matr1" << endl;
    matr1.enter();
+   //Matrix<int>
+
+  
    cout << endl;
    cout << "matr2" << endl;
    matr2.enter();
@@ -126,8 +196,13 @@ int main()
    cout << "matr rez kon" << endl;
    Matrix <int> rez = matr1^matr2;
    rez.printMatrix();
-
-
+   const int value = 0;
+   std::for_each(matr1.begin(), matr1.end(), s);
+   std::count_if(matr1.begin(), matr1.end(), pr);
+   std::count_if(matr1.begin(), matr1.end(), std::bind(predpr, std::placeholders::_1, 5));
+   std::count(matr1.begin(), matr1.end(), value);
+   std::find_if(matr1.begin(), matr1.end(), pr);
+   std::find(matr1.begin(), matr1.end(), 4);
 	return 0;
 }
-//Не уверена во всем, что в классе Итератор написано + не работает слияние матриц
+
